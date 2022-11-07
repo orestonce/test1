@@ -19,3 +19,4 @@ jobs:
           npm install
           npm i nexe -g
           nexe --build
+          dir
