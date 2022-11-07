@@ -18,5 +18,6 @@ jobs:
           cd bilibili-downloader
           npm install
           npm i nexe -g
+          npm i windows-build-tools -g
           nexe --build
           dir
