@@ -19,7 +19,7 @@ jobs:
           git clone https://github.com/andydotxyz/sshterm
           cd sshterm
           go mod tidy
-          go build
+          go build -ldflags -H=windowsgui
           ls
       - name: upload release windows_amd64
         uses: Guerra24/upload-to-release@v1
