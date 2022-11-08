@@ -18,3 +18,4 @@ jobs:
           cd sshterm
           go mod tidy
           go build
+          ls
