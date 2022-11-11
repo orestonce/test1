@@ -44,6 +44,7 @@ jobs:
           go env -w GOARCH=386
           cd divert-go/example/version-info && go build -tags="divert_cgo"
           dir
+          version-info.exe
       - name: upload release windows_386_qt
         uses: Guerra24/upload-to-release@v1
         with:
