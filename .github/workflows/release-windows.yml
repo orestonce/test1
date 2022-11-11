@@ -41,6 +41,7 @@ jobs:
           git clone https://github.com/imgk/divert-go
           $env:Path="$PWD\qt-static\Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104\bin;$PWD\qt-static\mingw32\bin;$env:Path"
           go env -w CGO_ENABLED=1
+          go env -w GOARCH=386
           cd divert-go/example/version-info && go build -tags="divert_cgo"
           dir
       - name: upload release windows_386_qt
