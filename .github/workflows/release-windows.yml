@@ -18,6 +18,6 @@ jobs:
       - name: test1
         run: |
           echo ${GITHUB_PATH}
-          qmake || echo
-          gcc -v || echo
-          mingw32-make -v || echo
+          qmake || echo 1
+          gcc -v || echo 2
+          mingw32-make -v || echo 3
