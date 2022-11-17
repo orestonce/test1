@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: test1
         run: |
-          switch (runner.os) {
+          switch ( $${{ runner.os }} ) {
             "Windows" {
               echo "this is windows."
               break
