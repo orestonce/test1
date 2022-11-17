@@ -17,6 +17,7 @@ jobs:
         uses: orestonce/install-qt-static@v0.1.1
       - name: test1
         run: |
+          cat ${GITHUB_PATH}
           qmake
           gcc -v
           mingw32-make -v
