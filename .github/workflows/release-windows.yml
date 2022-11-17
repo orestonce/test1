@@ -15,3 +15,8 @@ jobs:
     steps:
       - name: install qt static
         uses: orestonce/install-qt-static@v0.1.1
+      - name: test1
+        run: |
+          qmake
+          gcc -v
+          mingw32-make -v
