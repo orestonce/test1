@@ -16,7 +16,6 @@ jobs:
       - name: install qt static
         uses: orestonce/install-qt-static@v0.1.5
       - name: test1
-        shell: bash
         run: |
           echo ${GITHUB_PATH}
           qmake
