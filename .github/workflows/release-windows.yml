@@ -20,6 +20,7 @@ jobs:
       - name: test1
         run: |
           pwd
+          echo ${PATH}
           echo ${GITHUB_PATH}
           qmake || echo 1
           gcc -v || echo 2
