@@ -14,7 +14,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: install qt static
-        uses: orestonce/install-qt-static@v0.3.3
+        uses: orestonce/install-qt-static@v0.3.4
         with:
           version: Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104
       - name: test1
