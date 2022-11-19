@@ -20,5 +20,6 @@ jobs:
       - name: test1
         run: |
           pwd
+          dir
           echo ${PATH}
           echo ${GITHUB_PATH}
