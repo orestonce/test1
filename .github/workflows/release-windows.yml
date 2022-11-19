@@ -19,6 +19,7 @@ jobs:
           version: Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104
       - name: test1
         run: |
+          pwd
           echo ${GITHUB_PATH}
           qmake || echo 1
           gcc -v || echo 2
