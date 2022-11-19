@@ -21,5 +21,5 @@ jobs:
         run: |
           pwd
           dir
-          echo ${PATH}
+          $env:path
           echo ${GITHUB_PATH}
