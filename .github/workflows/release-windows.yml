@@ -19,8 +19,4 @@ jobs:
           version: Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104
       - name: test1
         run: |
-          pwd
-          dir
-          $env:path
-          dir qt_static_install
-          echo ${GITHUB_PATH}
+          dir D:\a\test1\test1\qt_static_install/mingw_install
