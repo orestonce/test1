@@ -17,9 +17,3 @@ jobs:
         uses: orestonce/install-qt-static@v0.3.7
         with:
           version: Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104
-      - name: test1
-        run: |
-          echo ${GITHUB_PATH}
-          qmake || echo 1
-          gcc -v || echo 2
-          mingw32-make -v || echo 3
