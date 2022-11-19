@@ -22,4 +22,5 @@ jobs:
           pwd
           dir
           $env:path
+          dir qt_static_install
           echo ${GITHUB_PATH}
