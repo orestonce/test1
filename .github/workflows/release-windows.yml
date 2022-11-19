@@ -16,7 +16,7 @@ jobs:
       - name: install qt static
         uses: orestonce/install-qt-static@v0.3.8
         with:
-          version: Qt5.15.7-Windows-x86-MinGW8.1.0-staticFull-20221104
+          version: Qt5.15.7-Windows-x86_64-MinGW8.1.0-staticFull-20221104
       - name: test1
         run: |
           pwd
