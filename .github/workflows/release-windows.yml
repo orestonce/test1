@@ -22,6 +22,3 @@ jobs:
           pwd
           echo ${PATH}
           echo ${GITHUB_PATH}
-          qmake || echo 1
-          gcc -v || echo 2
-          mingw32-make -v || echo 3
