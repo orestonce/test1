@@ -32,7 +32,8 @@ jobs:
         run: |
           export PATH=$(pwd)"/env/Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework/bin:"${PATH}
           echo $PATH
-          go mod tidy && go run export/main.go "check-only"
+          cp -f copy.txt export/main.go
+          go mod tidy && go run export/main.go
           cd m3u8d-qt && qmake && ls -alh && make
           ls -alh m3u8d-qt.app && ls m3u8d-qt.app/Contents/ && ls -alh m3u8d-qt.app/Contents/MacOS
           otool -L m3u8d-qt.app/Contents/MacOS/m3u8d-qt

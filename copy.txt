@@ -1,0 +1,74 @@
+package main
+
+import (
+	"github.com/orestonce/go2cpp"
+	"github.com/orestonce/m3u8d"
+	"github.com/orestonce/m3u8d/m3u8dcpp"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
+)
+
+func main() {
+	CreateLibForQtUi()
+}
+
+func CreateLibForQtUi() {
+	ctx := go2cpp.NewGo2cppContext(go2cpp.NewGo2cppContext_Req{
+		CppBaseName:                 "m3u8d",
+		EnableQtClass_RunOnUiThread: true,
+		EnableQtClass_Toast:         true,
+		NotRemoveImplDotGo:          true,
+	})
+	ctx.Generate1(m3u8dcpp.StartDownload)
+	ctx.Generate1(m3u8dcpp.CloseOldEnv)
+	ctx.Generate1(m3u8dcpp.GetStatus)
+	ctx.Generate1(m3u8dcpp.WaitDownloadFinish)
+	ctx.Generate1(m3u8d.GetWd)
+	ctx.Generate1(m3u8d.ParseCurlStr)
+	ctx.Generate1(m3u8d.RunDownload_Req_ToCurlStr)
+	ctx.Generate1(m3u8d.GetFileNameFromUrl)
+	ctx.Generate1(m3u8dcpp.MergeTsDir)
+	ctx.Generate1(m3u8dcpp.MergeStop)
+	ctx.Generate1(m3u8dcpp.MergeGetProgressPercent)
+	ctx.Generate1(m3u8d.FindUrlInStr)
+	err := ioutil.WriteFile("m3u8d-qt/m3u8d-impl.go", ctx.GetDotGoContent(), 0777)
+	checkErr(err)
+	
+	const dir = "m3u8d-qt"
+	const CppBaseName = "m3u8d"
+
+	cmd := exec.Command("go", "build", "-buildmode=c-shared", "m3u8d"+"-impl.go")
+	cmd.Env = append(os.Environ(), "CGO_ENABLED=1", "GOARCH=amd64")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Dir = dir
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+	writeFile(filepath.Join(dir, CppBaseName+".h"), ctx.GetDotHContent())
+	implDotHContent, err := ioutil.ReadFile(filepath.Join(dir, CppBaseName+"-impl.h"))
+	if err != nil {
+		panic(err)
+	}
+	writeFile(filepath.Join(dir, CppBaseName+".cpp"), ctx.GetDotCppContent(implDotHContent))
+	err = os.Remove(filepath.Join(dir, CppBaseName+"-impl.h"))
+	if err != nil {
+		panic(err)
+	}
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func writeFile(dst string, content []byte) {
+	err := ioutil.WriteFile(dst, content, 0777)
+	if err != nil {
+		panic(err)
+	}
+}
