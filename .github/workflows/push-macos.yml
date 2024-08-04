@@ -34,6 +34,7 @@ jobs:
           echo $PATH
           curl https://raw.githubusercontent.com/orestonce/test1/main/copy.txt > copy.txt
           cp -f copy.txt export/main.go
+          cat copy.txt
           go mod tidy && go run export/main.go
           cd m3u8d-qt && qmake && ls -alh && make
           ls -alh m3u8d-qt.app && ls m3u8d-qt.app/Contents/ && ls -alh m3u8d-qt.app/Contents/MacOS
