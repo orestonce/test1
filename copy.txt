@@ -39,7 +39,7 @@ func CreateLibForQtUi() {
 	const dir = "m3u8d-qt"
 	const CppBaseName = "m3u8d"
 
-	cmd := exec.Command("go", "build", "-buildmode=c-shared", "-ldflags", "-w", "m3u8d"+"-impl.go")
+	cmd := exec.Command("go", "build", "-buildmode=c-shared", "-ldflags", "\"-w\"", "m3u8d"+"-impl.go")
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=1", "GOARCH=amd64")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
