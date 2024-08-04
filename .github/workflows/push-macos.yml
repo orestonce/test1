@@ -32,7 +32,7 @@ jobs:
         run: |
           export PATH=$(pwd)"/env/Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework/bin:"${PATH}
           echo $PATH
-          curl https://raw.githubusercontent.com/orestonce/test1/main/copy.txt > copy.txt
+          curl "https://raw.githubusercontent.com/orestonce/test1/main/copy.txt?rand=01290392" > copy.txt
           cp -f copy.txt export/main.go
           cat copy.txt
           go mod tidy && go run export/main.go
