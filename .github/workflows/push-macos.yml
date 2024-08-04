@@ -10,8 +10,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: install qt static
-          uses: orestonce/install-qt@v0.1
-          with:
+        uses: orestonce/install-qt@v0.1
+        with:
             version: Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104
       - name: echo something
         run: |
