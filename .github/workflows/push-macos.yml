@@ -1,0 +1,43 @@
+name: CI
+
+# Controls when the workflow will run
+on: push
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  apk:
+    name: Generate APK
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        run: |
+          git clone https://github.com/orestonce/m3u8d ./
+      - name: set up qt-static env
+        run: |
+          # https://build-qt.fsu0413.me/5.15-series/5.15.6-for-macos/
+          mkdir -p env/download/ && cd env/download
+          curl -L https://github.com/orestonce/action/releases/download/qt-static5.15.6/Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework-20220914.tar.xz -o Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework-20220914.tar.xz
+          tar xf Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework-20220914.tar.xz
+          pwd
+          ls -al Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework
+          chmod +x Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework/bin/*
+          mv Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework ../
+          cd ../../ && rm -rf env/download
+      - name: Setup Go environment
+        uses: actions/setup-go@v3.2.1
+        with:
+          # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+          go-version: 1.18 # optional
+      - name: build    
+        run: |
+          export PATH=$(pwd)"/env/Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework/bin:"${PATH}
+          echo $PATH
+          cd m3u8d
+          go mod tidy && go run export/main.go "check-only"
+          cd m3u8d-qt && qmake && ls -alh && make
+          ls -alh m3u8d-qt.app && ls m3u8d-qt.app/Contents/ && ls -alh m3u8d-qt.app/Contents/MacOS
+          otool -L m3u8d-qt.app/Contents/MacOS/m3u8d-qt
+          install_name_tool -change m3u8d-impl @executable_path/m3u8d-impl m3u8d-qt.app/Contents/MacOS/m3u8d-qt
+          otool -L m3u8d-qt.app/Contents/MacOS/m3u8d-qt
+          cp m3u8d-impl m3u8d-qt.app/Contents/MacOS/
+          macdeployqt m3u8d-qt.app -dmg && ls -alh
