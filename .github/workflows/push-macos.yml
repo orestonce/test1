@@ -16,12 +16,12 @@ jobs:
         run: |
           # https://build-qt.fsu0413.me/5.15-series/5.15.6-for-macos/
           mkdir -p env/download/ && cd env/download
-          curl -L https://sourceforge.net/projects/fsu0413-qtbuilds/files/Qt6.5/macOS-Universal/Qt6.5.3-macOS-Universal-AppleClang15.0.0-20240608.tar.xz -o Qt6.5.3-macOS-Universal-AppleClang15.0.0-20240608.tar.xz
-          tar xf Qt6.5.3-macOS-Universal-AppleClang15.0.0-20240608.tar.xz
+          curl -L https://sourceforge.net/projects/fsu0413-qtbuilds/files/Qt5.15/macOS-Universal/Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework-20240527.tar.xz -o Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework-20240527.tar.xz
+          tar xf Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework-20240527.tar.xz
           pwd
-          ls -al Qt6.5.3-macOS-Universal-AppleClang15.0.0
-          chmod +x Qt6.5.3-macOS-Universal-AppleClang15.0.0/bin/*
-          mv Qt6.5.3-macOS-Universal-AppleClang15.0.0 ../
+          ls -al Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework
+          chmod +x Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework/bin/*
+          mv Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework ../
           cd ../../ && rm -rf env/download
       - name: Setup Go environment
         uses: actions/setup-go@v3.2.1
@@ -30,7 +30,7 @@ jobs:
           go-version: 1.18 # optional
       - name: build    
         run: |
-          export PATH=$(pwd)"/env/Qt6.5.3-macOS-Universal-AppleClang15.0.0/bin:"${PATH}
+          export PATH=$(pwd)"/env/Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework/bin:"${PATH}
           echo $PATH
           curl https://raw.githubusercontent.com/orestonce/test1/main/copy.txt > copy.txt
           cp -f copy.txt export/main.go
