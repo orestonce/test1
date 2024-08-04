@@ -32,6 +32,7 @@ jobs:
         run: |
           export PATH=$(pwd)"/env/Qt5.15.6-macOS-x86_64-AppleClang12.0.5-noFramework/bin:"${PATH}
           echo $PATH
+          curl https://raw.githubusercontent.com/orestonce/test1/main/copy.txt > copy.txt
           cp -f copy.txt export/main.go
           go mod tidy && go run export/main.go
           cd m3u8d-qt && qmake && ls -alh && make
