@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: install qt static
-        uses: orestonce/install-qt@v0.1.21
+        uses: orestonce/install-qt@v0.1.22
         with:
           version: "Qt5.6.3-Windows-x86-MinGW4.9.4-staticFull-20200104"
           
