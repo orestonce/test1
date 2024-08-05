@@ -7,7 +7,7 @@ jobs:
   # This workflow contains a single job called "build"
   apk:
     name: Generate APK
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: install qt static
         uses: orestonce/install-qt@main
