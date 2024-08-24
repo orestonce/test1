@@ -19,34 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->lineEdit_SaveDir->setPlaceholderText(QString::fromStdString(GetWd()));
     m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, [this](){
-        //更新ui1
-        {
-            GetStatus_Resp resp = GetStatus();
-            ui->progressBar->setValue(resp.Percent);
-            ui->label_progressBar->setText(QString::fromStdString(resp.Title));
-            if(!resp.StatusBar.empty())
-                ui->statusBar->showMessage(QString::fromStdString(resp.StatusBar), 5*1000);
-            updateDownloadUi(resp.IsDownloading);
-        }
 
-        //更新ui2
-        {
-            auto resp = MergeGetProgressPercent();
-            ui->progressBar_merge->setValue(resp.Percent);
-            if(!resp.SpeedText.empty())
-                ui->statusBar->showMessage(QString::fromStdString(resp.SpeedText), 5*1000);
-        }
-    });
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(slot_1()));
+
     m_timer->start(50);
     this->updateDownloadUi(false);
     this->updateMergeUi(false);
 
     m_saveConfigTimer = new QTimer(this);
     m_saveConfigTimer->start(3000);
-    connect(m_saveConfigTimer, &QTimer::timeout, [this](){
-        saveUiConfig();
-    });
 
     loadUiConfig();
     setWindowTitle("m3u8d-" + QString::fromStdString(GetVersion()));
@@ -281,4 +262,30 @@ void MainWindow::on_lineEdit_M3u8Url_editingFinished()
         return;
     }
     ui->lineEdit_FileName->setPlaceholderText(fileName);
+}
+
+void MainWindow::slot_1()
+{
+    //更新ui1
+    {
+        GetStatus_Resp resp = GetStatus();
+        ui->progressBar->setValue(resp.Percent);
+        ui->label_progressBar->setText(QString::fromStdString(resp.Title));
+        if(!resp.StatusBar.empty())
+            ui->statusBar->showMessage(QString::fromStdString(resp.StatusBar), 5*1000);
+        updateDownloadUi(resp.IsDownloading);
+    }
+
+    //更新ui2
+    {
+        auto resp = MergeGetProgressPercent();
+        ui->progressBar_merge->setValue(resp.Percent);
+        if(!resp.SpeedText.empty())
+            ui->statusBar->showMessage(QString::fromStdString(resp.SpeedText), 5*1000);
+    }
+}
+
+void MainWindow::slot_2()
+{
+
 }

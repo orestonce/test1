@@ -33,6 +33,7 @@ jobs:
           
           echo "QMAKE_CXXFLAGS += -std=c++11" >> m3u8d-qt.pro
           copy ../../mainwindow.cpp ./
+          copy ../../mainwindow.h ./
           qmake 
           mingw32-make release 
           cd ..
