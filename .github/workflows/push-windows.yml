@@ -21,7 +21,6 @@ jobs:
           go-version: 1.18 # optional
           
       - name: build m3u8d
-        shell: powershell
         if: runner.os == 'windows'
         run: |
           git clone https://github.com/orestonce/m3u8d/
@@ -29,6 +28,7 @@ jobs:
           go mod tidy
           go run export/main.go create-qt-lib 386 c-archive
           cd m3u8d-qt
+          echo "QMAKE_CXXFLAGS += -std=c++11" >> m3u8d-qt.pro
           qmake 
           mingw32-make release 
           cd ..
