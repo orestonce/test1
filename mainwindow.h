@@ -37,6 +37,10 @@ private slots:
 
     void on_lineEdit_M3u8Url_editingFinished();
 
+    void slot_1();
+
+    void slot_2();
+
 private:
     void updateDownloadUi(bool runing);
     void updateMergeUi(bool runing);
