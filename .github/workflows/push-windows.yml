@@ -13,3 +13,20 @@ jobs:
         uses: orestonce/install-qt@dev
         with:
           version: "Qt4.8.7-Windows-x86-MinGW4.9.4-20200104"
+      
+      - name: Setup Go environment
+        uses: actions/setup-go@v3.2.1
+        with:
+          # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+          go-version: 1.18 # optional
+          
+      - name: build m3u8d
+        shell: powershell
+        if: runner.os == 'windows'
+        run: |
+          git clone https://github.com/orestonce/m3u8d/
+          cd m3u8d
+          go mod tidy
+          go run export/main.go create-qt-lib 386 c-archive
+          cd m3u8d-qt && qmake && mingw32-make release && cd ..
+          dir m3u8d-qt\release\m3u8d-qt.exe
