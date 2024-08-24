@@ -28,5 +28,8 @@ jobs:
           cd m3u8d
           go mod tidy
           go run export/main.go create-qt-lib 386 c-archive
-          cd m3u8d-qt && qmake && mingw32-make release && cd ..
+          cd m3u8d-qt
+          qmake 
+          mingw32-make release 
+          cd ..
           dir m3u8d-qt\release\m3u8d-qt.exe
