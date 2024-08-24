@@ -13,8 +13,3 @@ jobs:
         uses: orestonce/install-qt@dev
         with:
           version: "Qt4.8.7-Windows-x86-MinGW4.9.4-20200104"
-          
-      - name: echo something
-        run: |
-            qmake -h
-            mingw32-make
