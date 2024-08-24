@@ -9,6 +9,8 @@ jobs:
     name: Generate APK
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v3
+      
       - name: install qt static
         uses: orestonce/install-qt@dev
         with:
@@ -28,7 +30,9 @@ jobs:
           go mod tidy
           go run export/main.go create-qt-lib 386 c-archive
           cd m3u8d-qt
+          
           echo "QMAKE_CXXFLAGS += -std=c++11" >> m3u8d-qt.pro
+          copy ../../mainwindow.cpp ./
           qmake 
           mingw32-make release 
           cd ..
