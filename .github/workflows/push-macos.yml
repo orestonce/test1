@@ -7,12 +7,12 @@ jobs:
   # This workflow contains a single job called "build"
   apk:
     name: Generate APK
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
       - name: install qt static
-        uses: orestonce/install-qt@main
+        uses: orestonce/install-qt@dev
         with:
-          version: "Qt5.15.14-macOS-Universal-AppleClang15.0.0-noFramework-20240527"
+          version: "Qt4.8.7-Windows-x86-MinGW4.9.4-20200104"
           
       - name: echo something
         run: |
