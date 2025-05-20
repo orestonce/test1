@@ -20,17 +20,29 @@ jobs:
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           choco install ninja -y
-          choco install doxygen -y
+          choco install doxygen.install -y  # 使用 doxygen.install 包确保完整安装
           refreshenv
-
-      # 3. 配置和编译 OpenCC
+          
+      # 3. 验证 Doxygen 安装
+      - name: Verify Doxygen installation
+        run: |
+          doxygen --version
+          where doxygen
+          
+      # 4. 配置和编译 OpenCC
       - name: Configure and build OpenCC
         working-directory: OpenCC
         run: |
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON
           cmake --build build
-
-      # 4. 上传编译好的二进制文件和生成的文档到 GitHub Actions 工件
+          
+      # 5. 检查文档是否生成
+      - name: Check documentation existence
+        if: always()
+        run: |
+          dir OpenCC/build/doc/html
+          
+      # 6. 上传编译好的二进制文件和生成的文档到 GitHub Actions 工件
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
