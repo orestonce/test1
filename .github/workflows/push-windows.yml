@@ -14,6 +14,5 @@ jobs:
         run: |
           git clone https://github.com/BYVoid/OpenCC
           cd OpenCC
-          cmd build.cmd
-          cmd test.cmd
+          mingw32-make install
           dir
