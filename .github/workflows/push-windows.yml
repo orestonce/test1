@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      DOXYGEN_PATH: C:\Program Files\doxygen\bin  # Doxygen 安装路径
+      DOXYGEN_ROOT: C:\Program Files\doxygen  # Doxygen 根目录
 
     steps:
       - name: Checkout repository
@@ -18,21 +18,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # 安装 CMake, Ninja, Doxygen
+          # 安装 CMake, Ninja, Doxygen（指定安装路径为 DOXYGEN_ROOT）
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           choco install ninja -y
-          choco install doxygen.install -y --params "/DoxygenInstallDir=$DOXYGEN_PATH"  # 指定安装路径
+          choco install doxygen.install -y --params "/DoxygenInstallDir=$DOXYGEN_ROOT"
 
-          # 刷新环境变量（PowerShell 专用）
-          if ($env:ChocolateyInstall) {
-              Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-          }
-          refreshenv  # 确保后续步骤识别新安装的工具
+      - name: Manually add Doxygen to PATH
+        run: |
+          # 将 Doxygen 的 bin 目录添加到系统环境变量（即时生效，无需刷新）
+          $env:PATH = "$DOXYGEN_ROOT\bin;$env:PATH"
+          Write-Host "Updated PATH: $env:PATH"  # 验证路径是否添加
 
       - name: Verify Doxygen installation
         run: |
-          doxygen --version  # 验证版本
-          Write-Host "Doxygen Path: $env:PATH" | Select-String -Pattern "doxygen\bin"  # 检查路径是否包含 Doxygen
+          doxygen --version  # 应输出版本号，如 1.9.6
+          where doxygen  # 应输出 Doxygen.exe 的路径
 
       - name: Configure build with documentation
         working-directory: OpenCC
@@ -40,8 +40,8 @@ jobs:
           cmake -B build `
             -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
-            -DBUILD_DOCUMENTATION=ON `  # 启用文档生成
-            -DDOXYGEN_EXECUTABLE=$DOXYGEN_PATH\doxygen.exe  # 显式指定 Doxygen 可执行文件
+            -DBUILD_DOCUMENTATION=ON `
+            -DDOXYGEN_EXECUTABLE=$DOXYGEN_ROOT\bin\doxygen.exe  # 显式指定路径
 
           cmake --build build --config Release
 
