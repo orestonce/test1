@@ -1,52 +1,55 @@
-name: Build, Generate Docs and Upload OpenCC on Windows
+name: Build OpenCC with Doxygen on Windows
 
 on:
-  workflow_dispatch:  # 允许手动触发工作流
+  workflow_dispatch:
 
 jobs:
-  build-and-upload:
+  build:
     runs-on: windows-latest
+    env:
+      DOXYGEN_PATH: C:\Program Files\doxygen\bin  # Doxygen 安装路径
 
     steps:
-      # 1. 克隆 OpenCC 仓库
-      - name: Clone OpenCC repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: BYVoid/OpenCC
           path: OpenCC
 
-      # 2. 安装编译和文档生成所需的依赖
       - name: Install dependencies
         run: |
+          # 安装 CMake, Ninja, Doxygen
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           choco install ninja -y
-          choco install doxygen.install -y  # 使用 doxygen.install 包确保完整安装
-          refreshenv
-          
-      # 3. 验证 Doxygen 安装
+          choco install doxygen.install -y --params "/DoxygenInstallDir=$DOXYGEN_PATH"  # 指定安装路径
+
+          # 刷新环境变量（PowerShell 专用）
+          if ($env:ChocolateyInstall) {
+              Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          }
+          refreshenv  # 确保后续步骤识别新安装的工具
+
       - name: Verify Doxygen installation
         run: |
-          doxygen --version
-          where doxygen
-          
-      # 4. 配置和编译 OpenCC
-      - name: Configure and build OpenCC
+          doxygen --version  # 验证版本
+          Write-Host "Doxygen Path: $env:PATH" | Select-String -Pattern "doxygen\bin"  # 检查路径是否包含 Doxygen
+
+      - name: Configure build with documentation
         working-directory: OpenCC
         run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON
-          cmake --build build
-          
-      # 5. 检查文档是否生成
-      - name: Check documentation existence
-        if: always()
-        run: |
-          dir OpenCC/build/doc/html
-          
-      # 6. 上传编译好的二进制文件和生成的文档到 GitHub Actions 工件
+          cmake -B build `
+            -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_DOCUMENTATION=ON `  # 启用文档生成
+            -DDOXYGEN_EXECUTABLE=$DOXYGEN_PATH\doxygen.exe  # 显式指定 Doxygen 可执行文件
+
+          cmake --build build --config Release
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: opencc-executables-and-docs
+          name: opencc-windows-binaries-docs
           path: |
-            OpenCC/build/bin/*
-            OpenCC/build/doc/html/*
+            OpenCC/build/bin/*.exe
+            OpenCC/build/doc/html/**/*
+          retention-days: 30
