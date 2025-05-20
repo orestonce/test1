@@ -1,18 +1,40 @@
-name: CI
+name: Build, Generate Docs and Upload OpenCC on Windows
 
-# Controls when the workflow will run
-on: push
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+on:
+  workflow_dispatch:  # 允许手动触发工作流
+
 jobs:
-  # This workflow contains a single job called "build"
-  apk:
-    name: Generate
+  build-and-upload:
     runs-on: windows-latest
+
     steps:
-      - name: build
-        if: runner.os == 'windows'
+      # 1. 克隆 OpenCC 仓库
+      - name: Clone OpenCC repository
+        uses: actions/checkout@v4
+        with:
+          repository: BYVoid/OpenCC
+          path: OpenCC
+
+      # 2. 安装编译和文档生成所需的依赖
+      - name: Install dependencies
         run: |
-          git clone https://github.com/BYVoid/OpenCC
-          cd OpenCC
-          mingw32-make install
-          dir
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          choco install ninja -y
+          choco install doxygen -y
+          refreshenv
+
+      # 3. 配置和编译 OpenCC
+      - name: Configure and build OpenCC
+        working-directory: OpenCC
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=ON
+          cmake --build build
+
+      # 4. 上传编译好的二进制文件和生成的文档到 GitHub Actions 工件
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-executables-and-docs
+          path: |
+            OpenCC/build/bin/*
+            OpenCC/build/doc/html/*
