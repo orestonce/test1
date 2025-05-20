@@ -6,13 +6,13 @@ on: push
 jobs:
   # This workflow contains a single job called "build"
   apk:
-    name: Generate APK
+    name: Generate
     runs-on: windows-latest
     steps:
-      - name: build m3u8d
+      - name: build
         if: runner.os == 'windows'
         run: |
           git clone https://github.com/BYVoid/OpenCC
           cd OpenCC
-          build.cmd
+          cmd build.cmd
           dir
