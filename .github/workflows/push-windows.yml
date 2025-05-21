@@ -10,6 +10,7 @@ jobs:
       OPENCC_VERSION: ver.1.1.9
       DOXYGEN_ROOT: C:\Program Files\doxygen
       DOXYGEN_EXECUTABLE: C:\Program Files\doxygen\bin\doxygen.exe
+      SYSTEM_BIN_DIR: C:\Windows\System32  # 已在PATH中的系统目录
 
     steps:
       - name: Checkout specific version
@@ -24,7 +25,7 @@ jobs:
         run: |
           choco install cmake ninja -y
           
-          # 使用 Chocolatey 安装 Doxygen（替代直接下载）
+          # 使用 Chocolatey 安装 Doxygen
           choco install doxygen.install -y --params "/DoxygenInstallDir:$env:DOXYGEN_ROOT"
           
           # 验证 Doxygen 安装
@@ -33,21 +34,23 @@ jobs:
               exit 1
           }
           
+          # 关键修复：将 doxygen.exe 复制到已在 PATH 中的目录
+          Copy-Item -Path "$env:DOXYGEN_EXECUTABLE" -Destination "$env:SYSTEM_BIN_DIR" -Force
+          
+          # 验证系统路径是否可访问 doxygen
+          Get-Command doxygen -ErrorAction Stop
+          
           # 输出版本信息
-          & "$env:DOXYGEN_EXECUTABLE" --version
+          doxygen --version
 
       - name: Configure build
         working-directory: OpenCC
         run: |
-          # 输出关键环境变量供调试
-          Write-Host "DOXYGEN_EXECUTABLE: $env:DOXYGEN_EXECUTABLE"
-          Write-Host "文件是否存在: $(Test-Path $env:DOXYGEN_EXECUTABLE)"
-          
           cmake -B build `
             -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
             -DBUILD_DOCUMENTATION=ON `
-            -DDOXYGEN_EXECUTABLE="$env:DOXYGEN_EXECUTABLE" `
+            -DDOXYGEN_EXECUTABLE=doxygen `  # 直接使用命令名，无需路径
             -DCMAKE_VERBOSE_MAKEFILE=ON `
             -Wno-dev
 
@@ -56,6 +59,12 @@ jobs:
         run: |
           cmake --build build --config Release
           
+          # 验证编译结果
+          $exe_path = "build/bin/opencc.exe"
+          if (-not (Test-Path $exe_path)) {
+              Write-Error "编译失败: 未找到 opencc.exe"
+              exit 1
+          }
           
           # 显示编译后的文件列表
           Get-ChildItem -Path build/bin -Recurse
