@@ -51,7 +51,6 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release `
             -DBUILD_DOCUMENTATION=ON `
             -DDOXYGEN_EXECUTABLE=doxygen `  # 直接使用命令名，无需路径
-            -DCMAKE_VERBOSE_MAKEFILE=ON `
             -Wno-dev
 
       - name: Build OpenCC
