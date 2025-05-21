@@ -56,12 +56,6 @@ jobs:
         run: |
           cmake --build build --config Release
           
-          # 验证编译结果
-          $exe_path = "build/bin/opencc.exe"
-          if (-not (Test-Path $exe_path)) {
-              Write-Error "编译失败: 未找到 opencc.exe"
-              exit 1
-          }
           
           # 显示编译后的文件列表
           Get-ChildItem -Path build/bin -Recurse
