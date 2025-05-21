@@ -1,4 +1,4 @@
-name: Build OpenCC with Doxygen on Windows
+name: Build OpenCC v1.1.9 with Doxygen on Windows
 
 on:
   workflow_dispatch:
@@ -7,59 +7,69 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      DOXYGEN_VERSION: "1.9.6"  # 固定Doxygen版本
-      DOXYGEN_ROOT: "C:\\Doxygen"  # 手动指定安装根目录（非系统Program Files，避免权限问题）
-      DOXYGEN_EXECUTABLE: "$DOXYGEN_ROOT\\bin\\doxygen.exe"  # 硬编码可执行文件路径
+      OPENCC_VERSION: ver.1.1.9
+      DOXYGEN_ROOT: C:\Program Files\doxygen
+      DOXYGEN_EXECUTABLE: C:\Program Files\doxygen\bin\doxygen.exe
 
     steps:
-      - name: Checkout specific release
+      - name: Checkout specific version
         uses: actions/checkout@v4
         with:
           repository: BYVoid/OpenCC
           path: OpenCC
-          ref: ver.1.1.9  # 固定为ver.1.1.9版本
+          ref: ${{ env.OPENCC_VERSION }}
           fetch-depth: 0
 
-      - name: Install Doxygen manually
+      - name: Install dependencies
         run: |
-          # 创建安装目录
-          New-Item -ItemType Directory -Path $env:DOXYGEN_ROOT | Out-Null
-          # 下载Doxygen官方安装包（x64）
-          $doxygen_url = "https://www.doxygen.nl/files/doxygen-$env:DOXYGEN_VERSION-windows.x64.bin.zip"
-          Invoke-WebRequest -Uri $doxygen_url -OutFile "doxygen.zip"
-          # 解压到指定目录（bin子目录自动创建）
-          Expand-Archive -Path "doxygen.zip" -DestinationPath $env:DOXYGEN_ROOT
-          # 验证文件存在
-          if (-not (Test-Path $env:DOXYGEN_EXECUTABLE)) {
-              Write-Error "Doxygen可执行文件未找到: $env:DOXYGEN_EXECUTABLE"
+          choco install cmake ninja -y
+          
+          # 使用 Chocolatey 安装 Doxygen（替代直接下载）
+          choco install doxygen.install -y --params "/DoxygenInstallDir:$env:DOXYGEN_ROOT"
+          
+          # 验证 Doxygen 安装
+          if (-not (Test-Path "$env:DOXYGEN_EXECUTABLE")) {
+              Write-Error "Doxygen 可执行文件不存在: $env:DOXYGEN_EXECUTABLE"
               exit 1
           }
+          
+          # 输出版本信息
+          & "$env:DOXYGEN_EXECUTABLE" --version
 
-      - name: Install build dependencies
-        run: |
-          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
-          choco install ninja -y
-          refreshenv  # 刷新环境变量（确保CMake识别）
-
-      - name: Configure CMake with explicit paths
+      - name: Configure build
         working-directory: OpenCC
         run: |
+          # 输出关键环境变量供调试
+          Write-Host "DOXYGEN_EXECUTABLE: $env:DOXYGEN_EXECUTABLE"
+          Write-Host "文件是否存在: $(Test-Path $env:DOXYGEN_EXECUTABLE)"
+          
           cmake -B build `
             -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
             -DBUILD_DOCUMENTATION=ON `
-            -DDOXYGEN_EXECUTABLE=$env:DOXYGEN_EXECUTABLE  # 硬编码路径传递给CMake
-          # 输出CMake检测到的Doxygen路径
-          Write-Host "CMake检测到的Doxygen路径: $($env:DOXYGEN_EXECUTABLE)"
+            -DDOXYGEN_EXECUTABLE="$env:DOXYGEN_EXECUTABLE" `
+            -DCMAKE_VERBOSE_MAKEFILE=ON `
+            -Wno-dev
 
       - name: Build OpenCC
         working-directory: OpenCC
-        run: cmake --build build --config Release
+        run: |
+          cmake --build build --config Release
+          
+          # 验证编译结果
+          $exe_path = "build/bin/opencc.exe"
+          if (-not (Test-Path $exe_path)) {
+              Write-Error "编译失败: 未找到 opencc.exe"
+              exit 1
+          }
+          
+          # 显示编译后的文件列表
+          Get-ChildItem -Path build/bin -Recurse
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: opencc-windows-binaries-docs
+          name: opencc-windows-v1.1.9
           path: |
             OpenCC/build/bin/*.exe
             OpenCC/build/doc/html/**/*
