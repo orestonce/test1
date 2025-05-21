@@ -7,42 +7,54 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      DOXYGEN_BIN: C:\Program Files\doxygen\bin  # Doxygen 可执行文件所在目录
+      DOXYGEN_VERSION: "1.9.6"  # 固定Doxygen版本
+      DOXYGEN_ROOT: "C:\\Doxygen"  # 手动指定安装根目录（非系统Program Files，避免权限问题）
+      DOXYGEN_EXECUTABLE: "$DOXYGEN_ROOT\\bin\\doxygen.exe"  # 硬编码可执行文件路径
 
     steps:
-      - name: Checkout latest release
+      - name: Checkout specific release
         uses: actions/checkout@v4
         with:
           repository: BYVoid/OpenCC
           path: OpenCC
-          ref: "ver.1.1.9"  # 获取最新发布标签
-          fetch-depth: 0  # 获取完整的版本历史，确保能检出标签
+          ref: ver.1.1.9  # 固定为ver.1.1.9版本
+          fetch-depth: 0
 
-      - name: Install dependencies
+      - name: Install Doxygen manually
+        run: |
+          # 创建安装目录
+          New-Item -ItemType Directory -Path $env:DOXYGEN_ROOT | Out-Null
+          # 下载Doxygen官方安装包（x64）
+          $doxygen_url = "https://www.doxygen.nl/files/doxygen-$env:DOXYGEN_VERSION-windows.x64.bin.zip"
+          Invoke-WebRequest -Uri $doxygen_url -OutFile "doxygen.zip"
+          # 解压到指定目录（bin子目录自动创建）
+          Expand-Archive -Path "doxygen.zip" -DestinationPath $env:DOXYGEN_ROOT
+          # 验证文件存在
+          if (-not (Test-Path $env:DOXYGEN_EXECUTABLE)) {
+              Write-Error "Doxygen可执行文件未找到: $env:DOXYGEN_EXECUTABLE"
+              exit 1
+          }
+
+      - name: Install build dependencies
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           choco install ninja -y
-          choco install doxygen.install -y --params "/DoxygenInstallDir=$env:DOXYGEN_BIN/.."
-          
-          # 验证 Doxygen 安装
-          $doxygen_exe = Join-Path -Path $env:DOXYGEN_BIN -ChildPath "doxygen.exe"
-          & $doxygen_exe --version
+          refreshenv  # 刷新环境变量（确保CMake识别）
 
-      - name: Configure build
+      - name: Configure CMake with explicit paths
         working-directory: OpenCC
         run: |
           cmake -B build `
             -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
             -DBUILD_DOCUMENTATION=ON `
-            -DDOXYGEN_EXECUTABLE=$env:DOXYGEN_BIN\doxygen.exe
+            -DDOXYGEN_EXECUTABLE=$env:DOXYGEN_EXECUTABLE  # 硬编码路径传递给CMake
+          # 输出CMake检测到的Doxygen路径
+          Write-Host "CMake检测到的Doxygen路径: $($env:DOXYGEN_EXECUTABLE)"
 
       - name: Build OpenCC
         working-directory: OpenCC
-        run: |
-          cmake --build build --config Release
-          # 显示编译后的文件列表，便于调试
-          Get-ChildItem -Path build/bin -Recurse
+        run: cmake --build build --config Release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
