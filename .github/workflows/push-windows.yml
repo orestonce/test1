@@ -15,7 +15,7 @@ jobs:
         with:
           repository: BYVoid/OpenCC
           path: OpenCC
-          ref: $(curl -s https://api.github.com/repos/BYVoid/OpenCC/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')  # 获取最新发布标签
+          ref: "ver.1.1.9"  # 获取最新发布标签
           fetch-depth: 0  # 获取完整的版本历史，确保能检出标签
 
       - name: Install dependencies
